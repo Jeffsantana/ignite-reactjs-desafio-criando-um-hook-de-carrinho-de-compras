@@ -21,7 +21,6 @@ interface CartContextData
   addProduct: (productId: number) => Promise<void>;
   removeProduct: (productId: number) => void;
   updateProductAmount: ({ productId, amount }: UpdateProductAmount) => void;
-  // loadProducts: () => Promise<ProductFormatted[]>;
 }
 
 const CartContext = createContext<CartContextData>({} as CartContextData);
@@ -33,7 +32,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element
   {
 
     const storagedCart = localStorage.getItem('@RocketShoes:cart');
-    console.log("🚀 ~ storagedCart", storagedCart);
+
 
     if (storagedCart)
     {
@@ -85,22 +84,23 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element
     }
   };
 
-  const removeProduct = (productId: number) =>
+  const removeProduct = async (productId: number) =>
   {
     try
     {
       const response: Product[] = []
-      const product = products.findIndex(product => product.id === productId)
-      if (product)
+      response.push(...cart)
+      cart.map(product =>
       {
-        response.push(...cart)
-        response.splice(1, product)
-      }
-      if (response)
-      {
-        setCart(response)
-        localStorage.setItem('@RocketShoes:cart', JSON.stringify(response))
-      }
+        if (product.id === productId)
+        {
+          const myEggs = cart.findIndex(index => index.id === product.id)
+          response.splice(myEggs, 1)
+        }
+      })
+
+      setCart(response)
+      localStorage.setItem('@RocketShoes:cart', JSON.stringify(response))
     } catch {
       // TODO
     }

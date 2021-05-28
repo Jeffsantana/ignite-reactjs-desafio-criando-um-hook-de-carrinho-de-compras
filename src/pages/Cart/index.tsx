@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import
 {
   MdDelete,
@@ -18,21 +18,48 @@ interface Product
   image: string;
   amount: number;
 }
+interface ProductFormatted extends Product
+{
+  totalPrice: number;
+  qty: number;
+
+}
 
 const Cart = (): JSX.Element =>
 {
   const { cart, removeProduct, updateProductAmount } = useCart();
 
+  let cartFormatted: ProductFormatted[] = [];
+  // useEffect(() => { }, [])
+  cart.map(product =>
+  {
+    const findKey = cartFormatted.findIndex(item => item.id === product.id)
 
-  const cartFormatted = cart.map(product => ({
-    // TODO
-  }))
-  // const total =
-  //   formatPrice(
-  //     cart.reduce((sumTotal, product) => {
-  //       // TODO
-  //     }, 0)
-  //   )
+    if (findKey > -1)
+    {
+      cartFormatted[findKey].qty++
+      cartFormatted[findKey].totalPrice += product.price
+    }
+    else
+    {
+      const productFormatted: ProductFormatted = {
+        ...product,
+        qty: 1,
+        totalPrice: product.price
+      }
+      cartFormatted.push(productFormatted)
+    }
+  })
+
+
+  const total =
+    formatPrice(
+      cart.reduce((sumTotal, product) =>
+      {
+        sumTotal += product.price
+        return sumTotal
+      }, 0)
+    )
 
   function handleProductIncrement(product: Product)
   {
@@ -41,12 +68,12 @@ const Cart = (): JSX.Element =>
 
   function handleProductDecrement(product: Product)
   {
-    // TODO
+
   }
 
   function handleRemoveProduct(productId: number)
   {
-    // TODO
+    removeProduct(productId)
   }
 
   return (
@@ -62,9 +89,9 @@ const Cart = (): JSX.Element =>
           </tr>
         </thead>
         <tbody>
-          {cart?.map(product => (
+          {cartFormatted?.map(product => (
 
-            <tr data-testid="product">
+            <tr data-testid="product" key={product.id}>
 
               <td>
                 <img src={product.image}
@@ -88,7 +115,7 @@ const Cart = (): JSX.Element =>
                     type="text"
                     data-testid="product-amount"
                     readOnly
-                    value={2}
+                    value={product.qty}
                   />
                   <button
                     type="button"
@@ -100,13 +127,13 @@ const Cart = (): JSX.Element =>
                 </div>
               </td>
               <td>
-                <strong>R$ 359,80</strong>
+                <strong>{formatPrice(product.price * product.qty)}</strong>
               </td>
               <td>
                 <button
                   type="button"
                   data-testid="remove-product"
-                // onClick={() => handleRemoveProduct(product.id)}
+                  onClick={() => handleRemoveProduct(product.id)}
                 >
                   <MdDelete size={20} />
                 </button>
@@ -121,7 +148,7 @@ const Cart = (): JSX.Element =>
 
         <Total>
           <span>TOTAL</span>
-          <strong>R$ 359,80</strong>
+          <strong>{total}</strong>
         </Total>
       </footer>
     </Container>
