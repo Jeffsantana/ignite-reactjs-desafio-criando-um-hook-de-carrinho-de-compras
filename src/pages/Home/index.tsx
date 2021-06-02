@@ -28,15 +28,15 @@ const Home = (): JSX.Element =>
 {
   const [products, setProducts] = useState<ProductFormatted[]>([]);
   const { addProduct, cart } = useCart();
-
-  const cartItemsAmount = cart.reduce((sumAmount, product) =>
+  // const [cartItemsAmount, setCartItemsAmount] = useState<CartItemsAmount>();
+  let cartItemsAmount = cart.reduce((sumAmount, product) =>
   {
     if (product.id in sumAmount)
     {
-      sumAmount[product.id]++;
+      // sumAmount[product.id]++;
     } else
     {
-      sumAmount[product.id] = 1
+      sumAmount[product.id] = product.amount
     }
     return sumAmount
   }, {} as CartItemsAmount)
@@ -45,8 +45,6 @@ const Home = (): JSX.Element =>
   {
     async function loadProductsHere()
     {
-      // TODO
-
       const { data } = await api.get("products")
       if (data)
       {
@@ -59,7 +57,6 @@ const Home = (): JSX.Element =>
       }
 
     }
-
     loadProductsHere();
   }, []);
 

@@ -20,6 +20,7 @@ interface CartContextData
   cart: Product[];
   addProduct: (productId: number) => Promise<void>;
   removeProduct: (productId: number) => void;
+  removeOneProduct: (productId: number) => void;
   updateProductAmount: ({ productId, amount }: UpdateProductAmount) => void;
 }
 
@@ -45,7 +46,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element
     }
 
   });
-
+  const [stock, setStock] = useState<Stock[]>([])
 
   useEffect(() =>
   {
@@ -60,51 +61,122 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element
       }
 
     }
+    async function loadStock() 
+    {
+
+      const { data } = await api.get("stock")
+      if (data)
+      {
+        setStock(data)
+      }
+
+    }
     loadProducts();
+    loadStock();
   }, [])
 
+  const viewProductAmount = (productId?: number) =>
+  {
+    const data = stock.find(product => product.id === productId)
+    if (data) { return data.amount } else { return 0 }
+  };
   const addProduct = async (productId: number) =>
   {
     try
     {
       const response: Product[] = []
-      const product = products.find(product => product.id === productId)
-      if (product)
-      {
-        response.push(...cart, product)
-      }
-      if (response)
-      {
-        setCart(response)
-        localStorage.setItem('@RocketShoes:cart', JSON.stringify(response))
-      }
-    } catch {
+      response.push(...cart)
 
-      console.log("🚀 ~ catch ADDPRODUCT");
+      const productIndex = response.findIndex(product => product.id === productId)
+
+      if (productIndex === -1)
+      {
+        const product = products.find(product => product.id === productId)
+        if (product)
+        {
+          product.amount = 1
+          response.push(product);
+          setCart(response)
+          localStorage.setItem('@RocketShoes:cart', JSON.stringify(response))
+        }
+      } else
+      {
+
+        const amountStock = viewProductAmount(productId);
+
+        const amountNow = response[productIndex].amount
+
+        if (amountNow < amountStock)
+        {
+          const amount = amountNow + 1;
+
+          updateProductAmount({ productId, amount })
+        }
+        else
+        {
+          throw new Error("Quantidade solicitada fora de estoque");
+        }
+      }
+
+    } catch (Error)
+    {
+      toast.error(Error.message)
     }
   };
-
   const removeProduct = async (productId: number) =>
   {
     try
     {
       const response: Product[] = []
       response.push(...cart)
-      cart.map(product =>
+
+      response.map(product =>
       {
         if (product.id === productId)
         {
           const myEggs = cart.findIndex(index => index.id === product.id)
           response.splice(myEggs, 1)
+
         }
       })
 
       setCart(response)
       localStorage.setItem('@RocketShoes:cart', JSON.stringify(response))
-    } catch {
-      // TODO
+    } catch (Error)
+    {
+      toast.error('Erro na remoção do produto')
     }
   };
+  const removeOneProduct = async (productId: number) =>
+  {
+    try
+    {
+      const response: Product[] = []
+      response.push(...cart)
+      const myIndex = cart.findIndex(product => product.id === productId)
+      const amountNew = response[myIndex].amount - 1;
+      if (amountNew > 0)
+      {
+        const amount = response[myIndex].amount - 1
+        updateProductAmount({ productId, amount })
+      }
+      if (amountNew === 0)
+      {
+        removeProduct(productId);
+      }
+      // response.splice(myIndex, 1)
+
+      // setCart(response)
+      // let amount = viewProductAmount(productId);
+      // amount += 1;
+      // updateProductAmount({ productId, amount })
+
+      // localStorage.setItem('@RocketShoes:cart', JSON.stringify(response))
+    } catch (Error)
+    {
+      toast.error('Erro na remoção do produto')
+    }
+  }
 
   const updateProductAmount = async ({
     productId,
@@ -113,9 +185,24 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element
   {
     try
     {
-      // TODO
-    } catch {
-      // TODO
+      if (amount === 0)
+      {
+        toast.error('')
+      }
+
+      const response: Product[] = []
+      response.push(...cart)
+
+      const productIndex = response.findIndex(product => product.id === productId)
+      response[productIndex].amount = amount
+      setCart(response)
+      localStorage.setItem('@RocketShoes:cart', JSON.stringify(response))
+
+
+    }
+    catch (Error)
+    {
+      toast.error(Error.message)
     }
   };
 
@@ -125,6 +212,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element
         cart,
         addProduct,
         removeProduct,
+        removeOneProduct,
         updateProductAmount
       }}
     >
