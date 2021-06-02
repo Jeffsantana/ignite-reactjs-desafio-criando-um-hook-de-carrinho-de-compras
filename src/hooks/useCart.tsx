@@ -80,7 +80,8 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element
     const data = stock.find(product => product.id === productId)
     if (data) { return data.amount } else { return 0 }
   };
-  const addProduct = async (productId: number) =>
+
+  async function addProduct(productId: number)
   {
     try
     {
@@ -92,8 +93,10 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element
       if (productIndex === -1)
       {
         const product = products.find(product => product.id === productId)
-        if (product)
+        const amountStock = viewProductAmount(productId);
+        if (product && amountStock)
         {
+
           product.amount = 1
           response.push(product);
           setCart(response)
@@ -120,7 +123,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element
 
     } catch (Error)
     {
-      toast.error(Error.message)
+      toast.error('Erro na adição do produto')
     }
   };
   const removeProduct = async (productId: number) =>
@@ -185,24 +188,25 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element
   {
     try
     {
-      if (amount === 0)
+      if (amount < 1)
       {
         toast.error('')
       }
+      else
+      {
+        const response: Product[] = []
+        response.push(...cart)
 
-      const response: Product[] = []
-      response.push(...cart)
-
-      const productIndex = response.findIndex(product => product.id === productId)
-      response[productIndex].amount = amount
-      setCart(response)
-      localStorage.setItem('@RocketShoes:cart', JSON.stringify(response))
-
+        const productIndex = response.findIndex(product => product.id === productId)
+        response[productIndex].amount = amount
+        setCart(response)
+        localStorage.setItem('@RocketShoes:cart', JSON.stringify(response))
+      }
 
     }
     catch (Error)
     {
-      toast.error(Error.message)
+      toast.error('Erro na alteração de quantidade do produto')
     }
   };
 
