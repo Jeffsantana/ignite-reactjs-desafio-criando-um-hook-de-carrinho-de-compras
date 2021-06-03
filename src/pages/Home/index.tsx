@@ -45,6 +45,7 @@ const Home = (): JSX.Element =>
   {
     async function loadProductsHere()
     {
+      // é possível tipar já na requisição api.get<Product[]>("products")
       const { data } = await api.get("products")
       if (data)
       {
