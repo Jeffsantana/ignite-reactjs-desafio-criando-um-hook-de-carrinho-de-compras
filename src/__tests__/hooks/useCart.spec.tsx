@@ -30,8 +30,10 @@ const initialStoragedData = [
   },
 ];
 
-describe('useCart Hook', () => {
-  beforeEach(() => {
+describe('useCart Hook', () =>
+{
+  beforeEach(() =>
+  {
     apiMock.reset();
 
     jest
@@ -39,7 +41,8 @@ describe('useCart Hook', () => {
       .mockReturnValueOnce(JSON.stringify(initialStoragedData));
   });
 
-  it('should be able to initialize cart with localStorage value', () => {
+  it('should be able to initialize cart with localStorage value', () =>
+  {
     const { result } = renderHook(useCart, {
       wrapper: CartProvider,
     });
@@ -66,7 +69,8 @@ describe('useCart Hook', () => {
     );
   });
 
-  it('should be able to add a new product', async () => {
+  it('should be able to add a new product', async () =>
+  {
     const productId = 3;
 
     apiMock.onGet(`stock/${productId}`).reply(200, {
@@ -85,7 +89,8 @@ describe('useCart Hook', () => {
       wrapper: CartProvider,
     });
 
-    act(() => {
+    act(() =>
+    {
       result.current.addProduct(productId);
     });
 
@@ -125,7 +130,8 @@ describe('useCart Hook', () => {
     );
   });
 
-  it('should not be able add a product that does not exist', async () => {
+  it('should not be able add a product that does not exist', async () =>
+  {
     const productId = 4;
 
     apiMock.onGet(`stock/${productId}`).reply(404);
@@ -135,12 +141,14 @@ describe('useCart Hook', () => {
       wrapper: CartProvider,
     });
 
-    act(() => {
+    act(() =>
+    {
       result.current.addProduct(productId);
     });
 
     await waitFor(
-      () => {
+      () =>
+      {
         expect(mockedToastError).toHaveBeenCalledWith(
           'Erro na adição do produto'
         );
@@ -154,7 +162,8 @@ describe('useCart Hook', () => {
     expect(mockedSetItemLocalStorage).not.toHaveBeenCalled();
   });
 
-  it('should be able to increase a product amount when adding a product that already exists on cart', async () => {
+  it('should be able to increase a product amount when adding a product that already exists on cart', async () =>
+  {
     const productId = 1;
 
     apiMock.onGet(`stock/${productId}`).reply(200, {
@@ -173,7 +182,8 @@ describe('useCart Hook', () => {
       wrapper: CartProvider,
     });
 
-    act(() => {
+    act(() =>
+    {
       result.current.addProduct(productId);
     });
 
@@ -205,7 +215,8 @@ describe('useCart Hook', () => {
     );
   });
 
-  it('should not be able to increase a product amount when running out of stock', async () => {
+  it('should not be able to increase a product amount when running out of stock', async () =>
+  {
     const productId = 2;
 
     apiMock.onGet(`stock/${productId}`).reply(200, {
@@ -223,12 +234,14 @@ describe('useCart Hook', () => {
       wrapper: CartProvider,
     });
 
-    act(() => {
+    act(() =>
+    {
       result.current.addProduct(productId);
     });
 
     await waitFor(
-      () => {
+      () =>
+      {
         expect(mockedToastError).toHaveBeenCalledWith(
           'Quantidade solicitada fora de estoque'
         );
@@ -244,14 +257,16 @@ describe('useCart Hook', () => {
     expect(mockedSetItemLocalStorage).not.toHaveBeenCalled();
   });
 
-  it('should be able to remove a product', () => {
+  it('should be able to remove a product', () =>
+  {
     const productId = 2;
 
     const { result } = renderHook(useCart, {
       wrapper: CartProvider,
     });
 
-    act(() => {
+    act(() =>
+    {
       result.current.removeProduct(productId);
     });
 
@@ -273,14 +288,16 @@ describe('useCart Hook', () => {
     );
   });
 
-  it('should not be able to remove a product that does not exist', () => {
+  it('should not be able to remove a product that does not exist', () =>
+  {
     const productId = 3;
 
     const { result } = renderHook(useCart, {
       wrapper: CartProvider,
     });
 
-    act(() => {
+    act(() =>
+    {
       result.current.removeProduct(productId);
     });
 
@@ -291,7 +308,8 @@ describe('useCart Hook', () => {
     expect(mockedSetItemLocalStorage).not.toHaveBeenCalled();
   });
 
-  it('should be able to update a product amount', async () => {
+  it('should be able to update a product amount', async () =>
+  {
     const productId = 2;
 
     apiMock.onGet(`stock/${productId}`).reply(200, {
@@ -303,7 +321,8 @@ describe('useCart Hook', () => {
       wrapper: CartProvider,
     });
 
-    act(() => {
+    act(() =>
+    {
       result.current.updateProductAmount({ amount: 2, productId });
     });
 
@@ -335,7 +354,8 @@ describe('useCart Hook', () => {
     );
   });
 
-  it('should not be able to update a product that does not exist', async () => {
+  it('should not be able to update a product that does not exist', async () =>
+  {
     const productId = 4;
 
     apiMock.onGet(`stock/${productId}`).reply(404);
@@ -344,12 +364,14 @@ describe('useCart Hook', () => {
       wrapper: CartProvider,
     });
 
-    act(() => {
+    act(() =>
+    {
       result.current.updateProductAmount({ amount: 3, productId });
     });
 
     await waitFor(
-      () => {
+      () =>
+      {
         expect(mockedToastError).toHaveBeenCalledWith(
           'Erro na alteração de quantidade do produto'
         );
@@ -363,7 +385,8 @@ describe('useCart Hook', () => {
     expect(mockedSetItemLocalStorage).not.toHaveBeenCalled();
   });
 
-  it('should not be able to update a product amount when running out of stock', async () => {
+  it('should not be able to update a product amount when running out of stock', async () =>
+  {
     const productId = 2;
 
     apiMock.onGet(`stock/${productId}`).reply(200, {
@@ -375,12 +398,14 @@ describe('useCart Hook', () => {
       wrapper: CartProvider,
     });
 
-    act(() => {
+    act(() =>
+    {
       result.current.updateProductAmount({ amount: 2, productId });
     });
 
     await waitFor(
-      () => {
+      () =>
+      {
         expect(mockedToastError).toHaveBeenCalledWith(
           'Quantidade solicitada fora de estoque'
         );
@@ -394,7 +419,8 @@ describe('useCart Hook', () => {
     expect(mockedSetItemLocalStorage).not.toHaveBeenCalled();
   });
 
-  it('should not be able to update a product amount to a value smaller than 1', async () => {
+  it('should not be able to update a product amount to a value smaller than 1', async () =>
+  {
     const productId = 2;
 
     apiMock.onGet(`stock/${productId}`).reply(200, {
@@ -406,13 +432,16 @@ describe('useCart Hook', () => {
       wrapper: CartProvider,
     });
 
-    act(() => {
+    act(() =>
+    {
       result.current.updateProductAmount({ amount: 0, productId });
     });
 
-    try {
+    try
+    {
       await waitForValueToChange(
-        () => {
+        () =>
+        {
           return result.current.cart;
         },
         { timeout: 50 }
