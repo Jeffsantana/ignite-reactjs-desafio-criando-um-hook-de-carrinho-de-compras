@@ -28,50 +28,34 @@ interface ProductFormatted extends Product
 
 const Cart = (): JSX.Element =>
 {
-  const { cart, removeProduct, removeOneProduct, addProduct } = useCart();
+  const { cart, removeProduct, removeOneProduct, updateProductAmount } = useCart();
 
-  let cartFormatted: ProductFormatted[] = [];
-  // useEffect(() => { }, [])
-  cart.map(product =>
-  {
-    const findKey = cartFormatted.findIndex(item => item.id === product.id)
+  let cartFormatted = cart.map(product =>
+  ({
+    ...product,
+    priceFormatted: formatPrice(product.price),
+    subTotal: formatPrice(product.price * product.amount)
 
-    if (findKey > -1)
-    {
-      // cartFormatted[findKey].qty++
-      cartFormatted[findKey].totalPrice += product.price
-    }
-    else
-    {
-      const productFormatted: ProductFormatted = {
-        ...product,
-        qty: product.amount,
-        totalPrice: product.price
-      }
-      cartFormatted.push(productFormatted)
-    }
-  })
+  }))
 
 
   const total =
     formatPrice(
       cartFormatted.reduce((sumTotal, product) =>
       {
-        sumTotal += product.totalPrice
-        return sumTotal
+        return sumTotal + (product.price * product.amount)
       }, 0)
     )
 
-  async function handleProductIncrement(product: ProductFormatted)
+  async function handleProductIncrement(product: Product)
   {
-    await addProduct(product.id)
+    await updateProductAmount({ productId: product.id, amount: product.amount + 1 })
 
   }
 
-  async function handleProductDecrement(product: ProductFormatted)
+  async function handleProductDecrement(product: Product)
   {
-
-    await removeOneProduct(product.id)
+    await updateProductAmount({ productId: product.id, amount: product.amount - 1 })
 
   }
 
@@ -103,7 +87,7 @@ const Cart = (): JSX.Element =>
               </td>
               <td>
                 <strong>{product.title}</strong>
-                <span>{formatPrice(product.price)}</span>
+                <span>{product.priceFormatted}</span>
               </td>
               <td>
                 <div>
@@ -119,7 +103,7 @@ const Cart = (): JSX.Element =>
                     type="text"
                     data-testid="product-amount"
                     readOnly
-                    value={product.qty}
+                    value={product.amount}
                   />
                   <button
                     type="button"
@@ -131,7 +115,7 @@ const Cart = (): JSX.Element =>
                 </div>
               </td>
               <td>
-                <strong>{formatPrice(product.price * product.qty)}</strong>
+                <strong>{product.subTotal}</strong>
               </td>
               <td>
                 <button
