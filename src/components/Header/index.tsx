@@ -16,19 +16,7 @@ const Header = (): JSX.Element =>
 {
   const { cart } = useCart();
 
-  const cartDistinct: CartItemsAmount = []
-  const cartSize = cart.reduce((sum, product) =>
-  {
-    if (product.id in cartDistinct)
-    {
-      cartDistinct[product.id]++
-    } else
-    {
-      cartDistinct[product.id] = 1
-      sum += 1
-    }
-    return sum
-  }, 0)
+  const cartSize = cart.length
 
   return (
     <Container>
