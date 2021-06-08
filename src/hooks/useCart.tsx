@@ -140,15 +140,14 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element
   {
     try
     {
+      const stock = await api.get(`stock/${productId}`);
+      const stockAmount = stock.data.amount;
       if (amount <= 0)
       {
         throw Error();
       }
 
-      const stock = await api.get(`stock/${productId}`);
-      console.log("🚀 ~ stock", stock);
 
-      const stockAmount = stock.data.amount;
 
       if (amount > stockAmount)
       {
