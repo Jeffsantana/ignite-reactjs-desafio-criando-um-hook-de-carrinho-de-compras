@@ -45,32 +45,6 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element
 
   });
 
-  useEffect(() =>
-  {
-
-    async function loadProducts() 
-    {
-
-      const { data } = await api.get("products")
-      if (data)
-      {
-        setProducts(data)
-      }
-
-    }
-    async function loadStock() 
-    {
-
-      const { data } = await api.get("stock")
-      if (data)
-      {
-        setStock(data)
-      }
-
-    }
-    loadProducts();
-    loadStock();
-  }, [])
 
   const addProduct = async (productId: number) =>
   {
@@ -166,19 +140,18 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element
   {
     try
     {
+      const stock = await api.get(`stock/${productId}`);
+      const stockAmount = stock.data.amount;
       if (amount <= 0)
       {
-        return;
+        throw Error();
       }
 
-      const stock = await api.get(`/stock/${productId}`);
 
-      const stockAmount = stock.data.amount;
 
       if (amount > stockAmount)
       {
-        toast.error('Erro na alteração de quantidade do produto')
-        return;
+        throw Error();
       }
 
       const updatedCart = [...cart];
@@ -196,7 +169,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element
       }
 
     }
-    catch (Error)
+    catch
     {
       toast.error('Erro na alteração de quantidade do produto')
     }
